@@ -14,6 +14,9 @@
         body {
             overflow: hidden;
             height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #container {
@@ -70,4 +73,103 @@
 
             .image {
                 width: 30vw; /* Adjusted size for mobile */
-                height
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="title">Cool Mobile Webpage</div>
+        <div id="center-rectangle">
+            <video id="video" controls muted>
+                <source src="video.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        const centerRectangle = document.getElementById('center-rectangle');
+
+        function adjustCenterRectangle() {
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+
+            // Maintain landscape rectangle (2:1 aspect ratio)
+            const width = containerWidth * 0.6; // 60% of container width
+            const height = width / 2; // Height is half the width
+
+            centerRectangle.style.width = `${width}px`;
+            centerRectangle.style.height = `${height}px`;
+            centerRectangle.style.top = `${(containerHeight - height) / 2}px`;
+            centerRectangle.style.left = `${(containerWidth - width) / 2}px`;
+        }
+
+        window.addEventListener('resize', adjustCenterRectangle);
+        adjustCenterRectangle();
+
+        const imageFiles = [
+            '/mnt/data/photo_2024-11-12_16-12-29.jpg',
+            '/mnt/data/photo_2025-01-08_23-39-35.jpg',
+            '/mnt/data/photo_2025-01-08_23-39-48.jpg',
+            '/mnt/data/photo_2025-01-08_23-40-21.jpg',
+            '/mnt/data/photo_2025-01-08_23-40-26.jpg'
+        ];
+
+        const images = [];
+
+        function randomPosition() {
+            return {
+                x: Math.random() * (container.clientWidth - container.clientWidth * 0.3),
+                y: Math.random() * (container.clientHeight - container.clientHeight * 0.3),
+                dx: (Math.random() > 0.5 ? 1 : -1) * 1.5, // Slightly faster movement
+                dy: (Math.random() > 0.5 ? 1 : -1) * 1.5
+            };
+        }
+
+        function createImageElement(src) {
+            const img = document.createElement('img');
+            img.src = src;
+            img.classList.add('image');
+
+            const position = randomPosition();
+            img.style.left = `${position.x}px`;
+            img.style.top = `${position.y}px`;
+
+            container.appendChild(img);
+            images.push({ img, ...position });
+        }
+
+        function moveImages() {
+            images.forEach(image => {
+                const img = image.img;
+                let x = image.x + image.dx;
+                let y = image.y + image.dy;
+
+                if (x <= 0 || x + img.clientWidth >= container.clientWidth) {
+                    image.dx *= -1;
+                    x = Math.max(0, Math.min(container.clientWidth - img.clientWidth, x));
+                }
+
+                if (y <= 0 || y + img.clientHeight >= container.clientHeight) {
+                    image.dy *= -1;
+                    y = Math.max(0, Math.min(container.clientHeight - img.clientHeight, y));
+                }
+
+                image.x = x;
+                image.y = y;
+
+                img.style.left = `${image.x}px`;
+                img.style.top = `${image.y}px`;
+            });
+
+            requestAnimationFrame(moveImages);
+        }
+
+        imageFiles.forEach(createImageElement);
+        moveImages();
+    </script>
+</body>
+</html>
